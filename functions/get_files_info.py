@@ -21,5 +21,3 @@ def get_files_info(working_directory, directory="."):
         return output_string
     except Exception as e:
         return f"Error listing files: {e}"
-
-get_files_info("calculator", "pkg")
