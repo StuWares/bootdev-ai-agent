@@ -2,7 +2,6 @@ import os
 import subprocess
 
 def run_python_file(working_directory, file_path, args=[]):
-    output_string = "No output produced"
     abs_working_dir = os.path.abspath(working_directory)
     target_file = os.path.abspath(os.path.join(working_directory, file_path))
 
@@ -16,15 +15,26 @@ def run_python_file(working_directory, file_path, args=[]):
         return f'Error: "{file_path}" is not a Python file.'
     
     try:
-        completed_process = subprocess.run(["uv","run", target_file] + args, timeout=30, stdout=True, stderr=True, cwd=working_directory)
-
-        if completed_process.returncode == 0:
-            output_string = f'STDOUT: {completed_process.stdout} STDERR: {completed_process.stderr}'
-        else:
-            output_string = f'STDOUT: {completed_process.stdout} STDERR: {completed_process.stderr} Process exited with code {completed_process.check_returncode}'
+        completed_process = subprocess.run(["uv","run", target_file] + args, timeout=30, capture_output=True, text=True, cwd=working_directory)
+        output = []
         
+        if completed_process.stdout:
+            output.append(f"STDOUT:\n{completed_process.stdout}")
+            
+        if completed_process.stderr:
+            output.append(f"STDERR:\n{completed_process.stderr}")
+        
+        if completed_process.returncode != 0:
+            output.append(f"Process exited with code {completed_process.returncode}")
+
+        if output:
+            output_string = "\n".join(output)
+        else:
+            output_string = "No output produced."
+
+        return output_string
 
     except Exception as e:
         return f"Error: executing Python file: {e}"
     
-    return output_string
+    
