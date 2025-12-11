@@ -21,7 +21,7 @@ args = parser.parse_args()
 messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
 
 def main():
-    print("Hello from soc-ai-agent!")
+    print("Hello from bootdev-ai-agent!")
 
     #print("Ask the magic answers machine:")
     #args.prompt = input()
