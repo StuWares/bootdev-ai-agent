@@ -4,8 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from prompts import system_prompt
-from call_function import available_functions
-from functions.call_function import call_function
+from call_function import available_functions, call_function
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -36,8 +35,6 @@ def main():
         raise RuntimeError("usage_metadata is empty, likely due to a failed API response")
     
     
-
-    
     if args.verbose:
         print(f"User prompt: {args.user_prompt}")
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
@@ -51,17 +48,19 @@ def main():
     call_responses = []
     for call in response.function_calls:
         call_args = {"name" : call.name, **call.args}
-        #print(f"Combined call_args: {call_args}")
 
         function_call_response = call_function(call_args, args.verbose)
         if not function_call_response.parts[0].function_response.response:
             raise Exception(f"Invalid function call response from: {call.name}")
-        call_responses.append(function_call_response.parts[0])
+        
 
         if args.verbose:
             print(f"-> {function_call_response.parts[0].function_response.response}")
+
+        call_responses.append(function_call_response.parts[0])
         
-        #print(f"Calling function: {call.name}({call.args})")
+        if not call_responses:
+            raise Exception("No function responses generated, exiting.")
 
 
 
